@@ -1,0 +1,17 @@
+{% if session['user_id'] %}
+    <nav id="avatar-menu">
+        <ul class="navbar-nav flex-column">
+            <li class="nav-item">
+                <a href="/user/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="/user/account">Account</a>
+            </li>
+        </ul>
+    </nav>
+    <script>
+        function showMenu(){
+            $('#avatar-menu').toggle(200);
+        }
+    </script>
+{% endif %}

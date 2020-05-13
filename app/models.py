@@ -2,7 +2,7 @@ from app import db
 from sqlalchemy.orm import relationship
 
 
-class Base(db.Mode):
+class Base(db.Model):
 
 
     __abstract__ = True

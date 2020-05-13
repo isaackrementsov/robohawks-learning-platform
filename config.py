@@ -2,8 +2,7 @@ import os
 import json
 
 
-local_config = json.load(open('local_config.json', 'r'))
-
+LOCAL_CONFIG = json.load(open('local_config.json', 'r'))
 
 DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -15,5 +14,5 @@ DATABASE_CONNECT_OPTIONS = {}
 THREADS_PER_PAGE = 2
 
 CSRF_ENABLED = True
-CSRF_SESS_KEY = local_config['csrf_sess_key']
-SECRET_KEY = local_config['secret_key']
+CSRF_SESS_KEY = LOCAL_CONFIG['csrf_sess_key']
+SECRET_KEY = LOCAL_CONFIG['secret_key']
