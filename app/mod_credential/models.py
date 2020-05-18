@@ -31,6 +31,7 @@ class Credential(Base):
     required_for = relationship('Course', secondary='prerequisite')
 
 
+
 class Prerequisite(Base):
 
 
