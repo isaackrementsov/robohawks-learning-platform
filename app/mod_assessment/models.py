@@ -10,6 +10,9 @@ class Assessment(CourseModule):
 
     __tablename__ = 'assessment'
 
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    unit_id = db.Column(db.Integer, ForeignKey('unit.id'))
+
     questions = relationship('AssessmentQuestion')
 
 

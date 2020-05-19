@@ -9,10 +9,13 @@ class Page(CourseModule):
 
     __tablename__ = 'page'
 
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    unit_id = db.Column(db.Integer, ForeignKey('unit.id'))
+
     resources = relationship('PageResource')
 
 
-    # TODO: change this to self.resources
+    # TODO: change this to self.resources or move to PageResource class?
     def next_sequence(self):
         return PageResource.query(db.func.max(PageResource.sequence)).filter_by(PageResource.page_id=self.id)
 

@@ -39,6 +39,19 @@ class Course(Base):
 
 
 
+class Unit(Base):
+
+
+    __tablename__ = 'unit'
+
+    course_id = db.Column(db.Integer, ForeignKey('course.id'))
+
+    name = db.Column(db.String(128), nullable=False)
+    pages = relationship('Page')
+    assessments = relationship('Assessment')
+
+
+
 class UserCourse(Base):
 
 
@@ -96,7 +109,7 @@ class CourseRequest(Base):
                 if matched.length == 0:
                     conflict = prerequisite.id
                     break
-        
+
         if conflict:
             return "Missing prerequisite: " + Credential.lookup_id(conflict).name
         else:
