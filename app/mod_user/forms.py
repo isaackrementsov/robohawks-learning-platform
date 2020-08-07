@@ -1,6 +1,3 @@
-import os
-import uuid
-
 from flask import current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
@@ -23,3 +20,17 @@ class CreateForm(FlaskForm):
     last_name = TextField('LastName', [Required()])
     password = PasswordField('Password', [Required()])
     admin = BooleanField('Admin')
+
+
+class UpdateForm(FlaskForm):
+
+    email = TextField('Email', [Required(), Email()])
+    username = TextField('Username', [Required()])
+    first_name = TextField('FirstName', [Required()])
+    last_name = TextField('LastName', [Required()])
+    password = PasswordField('Password', [Required()])
+    avatar = FileField()
+
+    # TODO: Implement mime checking
+    def save_avatar(self):
+        return FileUtils.save_file(self.avatar, '/avatars')
