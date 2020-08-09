@@ -20,8 +20,9 @@ class CreateResponseForm(FlaskForm):
 
 
 class UpdateResponseForm(CreateResponseForm):
-        score = NumberField('Score')
-        feedback = TextField('Feedback')
+
+    score = NumberField('Score')
+    feedback = TextField('Feedback')
 
 
 class CreateAndUpdateAnswerForm(CreateResponseForm):

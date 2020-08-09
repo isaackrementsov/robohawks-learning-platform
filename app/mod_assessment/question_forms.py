@@ -10,7 +10,6 @@ from wtforms.validators import Required
 class UpdateForm(FlaskForm):
 
     text_content = TextAreaField('TextContent', render_kw={'rows': 5, 'cols': 5})
-    sequence = HiddenField('Sequence', [Required()])
     all_required = BooleanField('AllRequired')
     file = FileField()
 
