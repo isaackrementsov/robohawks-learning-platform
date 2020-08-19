@@ -17,7 +17,7 @@ class User(Base):
     password = db.Column(db.String(192), nullable=False)
     avatar = db.Column(db.String(256), nullable=False, default=DEFAULT_AVATAR)
 
-    admin = db.Column(db.Boolean, nullable=False)
+    admin = db.Column(db.Boolean, nullable=False, default=False)
     instructor = db.Column(db.Boolean, nullable=False)
 
     courses = relationship('Course', secondary='user_course')

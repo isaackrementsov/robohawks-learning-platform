@@ -7,7 +7,7 @@ from wtforms import TextField, HiddenField
 from wtforms.validators import Required
 
 
-class CreateAndUpdateForm(FlaskForm):
+class CreateAndUpdateResourceForm(FlaskForm):
 
     link = TextField('Link')
     file = FileField()

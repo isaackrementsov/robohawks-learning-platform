@@ -13,7 +13,7 @@ class Page(CourseModule):
     unit_id = db.Column(db.Integer, ForeignKey('unit.id'))
 
     resources = relationship('PageResource')
-
+    course = relationship('Course', back_populates='pages')
 
     # TODO: change this to self.resources or move to PageResource class?
     def next_sequence(self):
