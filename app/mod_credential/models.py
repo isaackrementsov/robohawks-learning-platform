@@ -30,6 +30,10 @@ class Credential(Base):
     recipients = relationship('User', secondary='user_credential')
     required_for = relationship('Course', secondary='prerequisite')
 
+    @staticmethod
+    def list(query):
+        return User.query.filter(db.or_(Post.name.like('%' + query + '%'), Post.description.like('%' + query + '%'))).all()
+
 
 
 class Prerequisite(Base):

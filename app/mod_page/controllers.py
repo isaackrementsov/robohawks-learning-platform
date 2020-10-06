@@ -1,42 +1,152 @@
-from flask import Flask, Blueprint, request, render_template, flash, session, redirect, url_for
+from flask import Blueprint, request, jsonify
 
-from app.controllers import missing_session, go_home, go_dashboard, get_field
-
-from app.mod_page.forms import CreateAndUpdateForm
-from app.mod_page.resource_forms import CreateAndUpdateResourceForm
+from app.controllers import assign
 from app.mod_page.models import Page, PageResource
 
 
 mod_page = Blueprint('page', __name__, url_prefix='/page')
 
 
-@app.route('/', methods=['GET', 'POST', 'PATCH', 'DELETE'])
-def page():
-    if missing_session() or not request.values.get('seq'): go_home()
+@mod_page.route('/', methods=['GET'])
+def get():
+    page = Page.lookup(request.args.get('id'))
+    res = {}
+    status = 200
 
-    page_form = CreateAndUpdateForm()
-
-    if request.values.get('id'):
-        page = Page.lookup_id(request.values.get('id'))
-
-        resource_form = CreateAndUpdateResourceForm()
-
-        if page_form.validate_on_submit():
-            page.name =
-        elif request.method == 'DELETE':
-        else:
-            page_form.sequence.data = req.values.get('seq')
-            
+    if page:
+        form = request.json
+        res = {'data': page}
     else:
-        if page_form.validate_on_submit() and request.args.get('course_id') and request.args.get('unit_id'):
-            page = Page(
-                course_id=request.args.get('course_id'),
-                unit_id=request.args.get('unit_id'),
-                name=page_form.name.data,
-                text_content=page_form.text_content.data,
-                sequence=page_form.sequence.data
-            )
+        status = 404
 
+    return res, status
+
+
+@mod_page.route('/', methods=['POST'])
+def post():
+    form = request.json
+    res = {}
+    status = 200
+
+    page = Page(
+        course_id=form['course_id'],
+        unit_id=form['unit_id'],
+        name=form['name'],
+        text_content=form['text_content'],
+        sequence=form['sequence']
+    )
+
+    try:
+        page.save()
+        res = {'data': page}
+    except Exception as e:
+        res = {'error': 'There was an error saving the page'}
+        status = 500
+
+    return jsonify(res), status
+
+
+@mod_page.route('/', methods=['PATCH'])
+def patch():
+    page = Page.lookup(request.args.get('id'))
+    form = request.json
+    res = {}
+    status = 200
+
+    if page:
+        page = assign(form, page)
+
+        try:
             page.save()
-        else:
-            go_dashboard()
+            res = {'data': page}
+        except Exception:
+            status = 500
+            res = {'error': 'There was an error validating your account'}
+    else:
+        status = 404
+
+    return jsonify(res), status
+
+
+@mod_page.route('/', methods=['DELETE'])
+def delete():
+    page = Page.lookup_id(request.args.get('id'))
+    res = {}
+    status = 200
+
+    if page:
+        try:
+            page.delete()
+            res = {'data': page}
+        except Exception:
+            status = 500
+            res = {'error': 'There was an error deleting the page'}
+    else:
+        status = 404
+
+    return jsonify(res), status
+
+
+
+@mod_page.route('/resource', methods=['POST'])
+def post_resource():
+    form = request.json
+    res = {}
+    status = 200
+
+    resource = PageResource(
+        page_id=form['page_id'],
+        link=form['link'],
+        file=form['file'],
+        sequence=form['sequence']
+    )
+
+    try:
+        resource.save()
+        res = {'data': resource}
+    except Exception:
+        status = 500
+        res = {'error': 'There was an error saving the resource'}
+
+    return jsonify(res), status
+
+
+@mod_page.route('/resource', methods=['PATCH'])
+def patch_resource():
+    resource = PageResource.lookup_id(request.args.get('id'))
+    form = request.json
+    res = {}
+    status = 200
+
+    if resource:
+        page = assign(form, resource)
+
+        try:
+            page.save()
+            res = {'data': page}
+        except Exception:
+            status = 500
+            res = {'error': 'There was an error updating the resource'}
+    else:
+        status = 404
+
+    return jsonify(res), status
+
+
+@mod_page.route('/resource', methods=['DELETE'])
+def delete_resource():
+    resource = PageResource.lookup_id(request.args.get('id'))
+    res = {}
+    status = 200
+
+    if resource:
+        try:
+            resource.delete()
+            res = {'data': resource}
+        except Exception:
+            status = 500
+            res = {'error': 'There was an error deleting the resource'}
+    else:
+        status = 404
+
+    return jsonify(res), status

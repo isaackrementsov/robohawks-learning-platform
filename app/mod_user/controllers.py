@@ -1,117 +1,110 @@
-from flask import Flask, Blueprint, request, render_template, flash, session, redirect, url_for
+from flask import Blueprint, request, jsonify
 
-from app.controllers import missing_session, go_home, go_dashboard, get_field
-
-from app.mod_user.forms import LoginForm, CreateForm
+from app.controllers import get_field, assign
 from app.mod_user.models import User
 
 
 mod_user = Blueprint('user', __name__, url_prefix='/user')
 
 
-def create_session(user):
-    session['user_id'] = user.id
-    session['username'] = user.username
-    session['avatar'] = user.avatar
-    session['admin'] = user.admin
-
-
-@mod_user.route('/login', methods['GET', 'POST'])
+@mod_user.route('/login', methods=['POST'])
 def login():
-    if not missing_session(): return go_dashboard()
+    form = request.json
+    user = User.lookup(form['emailOrUsername'])
+    res = {}
 
-    form = LoginForm(request.form)
+    if user and user.password == form['password']:
+        res = {'data': user}
 
-    if form.validate_on_submit():
-        user = User.lookup(form.emailOrUsername.data)
-
-        if user and user.password == form.password.data:
-            create_session(user)
-
-            return redirect(url_for('user.dashboard', user_id=user.id))
-
-        flash('Wrong username or password', 'error')
-
-    return render_template('user/login.html', form=form, session=session)
+    return jsonify(res), 200
 
 
+@mod_user.route('/list', methods=['GET'])
+def list():
+    res = {}
+    status = 200
 
-@mod_user.route('/manage', methods=['GET', 'POST', 'DELETE'])
-def manage():
-    if missing_session() or not is_admin(): go_home()
+    try:
+        users = User.list(request.args)
+        res = {'data': users}
+    except Exception as e:
+        res = {'error': 'Invalid list filters'}
+        status = 400
 
-    form = CreateForm()
+    return jsonify(res), 200
 
-    if form.validate_on_submit():
-        user = User(
-            email=form.email.data,
-            username=form.username.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            password=form.password.data,
-            admin=form.admin.data
-        )
+
+@mod_user.route('/', methods=['GET'])
+def get():
+    user = User.lookup_id(request.args.get('id'))
+    res = {}
+    status = 200
+
+    if user:
+        res = {'data': user}
+    else:
+        status = 404
+
+    return jsonify(res), status
+
+
+@mod_user.route('/', methods=['POST'])
+def post():
+    form = request.json
+    res = {}
+
+    user = User(
+        email=form['email'],
+        username=form['username'],
+        first_name=form['first_name'],
+        last_name=form['last_name'],
+        password=form['password'],
+        admin=form['admin']
+    )
+
+    try:
+        user.save()
+        res = {'data': user}
+    except Exception as e:
+        res = {'error': 'Please choose a unique' + get_field(e)}
+
+    return jsonify(res), 200
+
+
+@mod_user.route('/', methods=['PATCH'])
+def patch():
+    user = User.lookup_id(request.args.get('id'))
+    form = request.json
+    res = {}
+    status = 200
+
+    if user:
+        user = assign(form, user)
 
         try:
             user.save()
-        except Exception as e:
-            flash('Please choose a unique' + get_field(e), 'error')
-    elif request.args.get('id') and request.method == 'DELETE':
-        user = User.lookup_id(request.args.get('id'))
+            res = {'data': user}
+        except Exception:
+            status = 500
+            res = {'error': 'There was an error validating your account'}
+        else:
+            status = 404
 
-        if user:
-            try:
-                user.delete()
-            except Exception:
-                flash('Error deleting user', 'error')
-
-    return render_template('users/manage.html', form=form, session=session)
+        return jsonify(res), status
 
 
-@mod_user.route('/dashboard', methods=['GET'])
-def dashboard():
-    if missing_session(): return go_home()
-
-    user = User.lookup_id(session['user_id'])
+@mod_user.route('/', methods=['DELETE'])
+def delete():
+    user = User.lookup_id(request.args.get('id'))
+    res = {}
+    status = 200
 
     if user:
-        return render_template('users/dashboard.html', user=user, session=session)
-    else:
-        raise Exception()
+        try:
+            user.delete()
+            res = {'data': user}
+        except Exception:
+            res = {'error': 'Error deleting user'}
+            status = 500
 
-
-@mod_user.route('/account', methods=['GET', 'PATCH'])
-def account():
-    if missing_session(): return go_home()
-
-    user = User.lookup_id(session['user_id'])
-
-    if user:
-        form = UpdateForm()
-
-        if form.validate_on_submit():
-            user = User(
-                email=form.email.data,
-                username=form.username.data,
-                first_name=form.first_name.data,
-                last_name=form.last_name.data,
-                password=form.password.data,
-                admin=form.admin.data
-            )
-
-            try:
-                user.save()
-            except Exception:
-                flash('There was an error validating your account')
-
-        return render_template('user/account.html', form=form, user=user)
-
-    else:
-        raise Exception()
-
-
-@mod_user.route('/logout', methods=['GET', 'POST'])
-def logout():
-    session.clear()
-
-    return redirect(url_for('user.login'))
+    return jsonify(res), status

@@ -38,6 +38,16 @@ class User(Base):
         return User.query.get(id) is not None
 
 
+    @staticmethod
+    def list(criteria):
+        query = []
+
+        for key in criteria:
+            query.append(criteria[key] == User.__dict__[key])
+
+        return User.query.filter(db.and_(*query)).all()
+
+
 
 class SupportChat(Base):
 
