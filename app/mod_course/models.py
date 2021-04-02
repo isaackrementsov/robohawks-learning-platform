@@ -17,18 +17,16 @@ class Course(Base):
     description = db.Column(db.Text, nullable=False)
 
     users = relationship('User', secondary='user_course')
-    user_requests = relationship('User', secondary='course_request')
+    requests = relationship('CourseRequest')
     prerequisites = relationship('Credential', secondary='prerequisite')
-    credentials = relationship('Credential')
     assessments = relationship('Assessment')
     pages = relationship('Page')
-    chats = relationship('SupportChat')
 
 
     # TODO: change this to use self.assessments and self.pages
     def next_sequence(self):
-    	max_assessment = Assessment.query(db.func.max(Assessment.sequence)).filter_by(Assessment.course_id=self.id)
-    	max_page = Page.query(db.func.max(Page.sequence)).filter_by(Page.course_id=self.id)
+    	max_assessment = Assessment.query(db.func.max(Assessment.sequence)).filter_by(Assessment.course_id==self.id)
+    	max_page = Page.query(db.func.max(Page.sequence)).filter_by(Page.course_id==self.id)
 
     	return max(max_assessment, max_page) + 1
 
@@ -38,29 +36,16 @@ class Course(Base):
         user_course.save()
 
 
-
-class Unit(Base):
-
-
-    __tablename__ = 'unit'
-
-    course_id = db.Column(db.Integer, ForeignKey('course.id'))
-
-    name = db.Column(db.String(128), nullable=False)
-    pages = relationship('Page')
-    assessments = relationship('Assessment')
-
-
-
 class UserCourse(Base):
 
 
     __tablename__ = 'user_course'
 
-    course_id = db.Column(db.Integer, ForeignKey('course.id'))
-    user_id = db.Column(db.Integer, ForeignKey('user.id'))
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    progress = db.Column(db.Integer, nullable=True, default=0)
+    # -1 for instructors
+    progress = db.Column(db.Integer, nullable=True, default=-1)
 
 
     # TODO: Test whether appending is necessary in a join table
@@ -74,15 +59,13 @@ class UserCourse(Base):
         Base.save(self)
 
 
-
 class CourseRequest(Base):
 
 
     __tablename__ = 'course_request'
 
-    course_id = db.Column(db.Integer, ForeignKey('course.id'))
-    user_id = db.Column(db.Integer, ForeignKey('user.id'))
-
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def accept(self):
         course = Course.lookup_id(self.course_id)
@@ -114,16 +97,3 @@ class CourseRequest(Base):
             return "Missing prerequisite: " + Credential.lookup_id(conflict).name
         else:
             Base.save(self)
-
-
-
-class CourseModule(Base):
-
-
-    __abstract__ = True
-
-    course_id = db.Column(db.Integer, ForeignKey('course.id'))
-
-    name = db.Column(db.String(128), nullable=False)
-    text_content = db.Column(db.Text, nullable=True)
-    sequence = db.Column(db.Integer, nullable=False)

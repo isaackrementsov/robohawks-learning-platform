@@ -1,13 +1,19 @@
-from flask import Flask, render_template, session, jsonify
+from flask import Flask, jsonify
+from flask_session import Session
+from flask_caching import Cache
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug import secure_filename
 
+from werkzeug import secure_filename
 
 app = Flask(__name__)
 app.config.from_object('config')
 
-db = SQLAlchemy(app)
+app.config['SESSION_MEMCACHED'] = Cache(app)
+Session(app)
 
+CORS(app, resources={r"/*": {"origins": "*"}})
+db = SQLAlchemy(app)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -23,16 +29,14 @@ def server_error():
 
 from app.mod_user.controllers import mod_user
 from app.mod_page.controllers import mod_page
-from app.mod_credential import mod_credential
-from app.mod_course import mod_course
-from app.mod_assessment import mod_assessment
+from app.mod_credential.controllers import mod_credential
+from app.mod_course.controllers import mod_course
+from app.mod_assessment.controllers import mod_assessment
 
 app.register_blueprint(mod_user)
 app.register_blueprint(mod_page)
 app.register_blueprint(mod_credential)
 app.register_blueprint(mod_course)
 app.register_blueprint(mod_assessment)
-
-
 
 db.create_all()

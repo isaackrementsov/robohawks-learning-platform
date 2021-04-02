@@ -1,31 +1,30 @@
 from app import db
 from sqlalchemy.orm import relationship
-from app.mod_course.models import CourseModule
+from app.mod_course.models_abstract import CourseModule
 from app.models import Base
 
 
 
-class Assessment(CourseModule):
-
+class Assessment(Base):
 
     __tablename__ = 'assessment'
 
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-    unit_id = db.Column(db.Integer, ForeignKey('unit.id'))
 
-    questions = relationship('AssessmentQuestion')
-
+    name = db.Column(db.String(128), nullable=False)
+    sequence = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text)
+    questions = relationship('Question')
 
     # TODO: change this to self.questions
     def next_sequence(self):
-        return AssessmentQuestion.query(db.func.max(AssessmentQuestion.sequence)).filter_by(AssessmentQuestion.assessment_id=self.id)
+        return AssessmentQuestion.query(db.func.max(Question.sequence)).filter_by(Question.assessment_id==self.id)
 
 
 
-class AssessmentQuestion(Base):
+class Question(Base):
 
-
-    __tablename__ = 'assessment_question'
+    __tablename__ = 'question'
 
     assessment_id = db.Column(db.Integer, db.ForeignKey('assessment.id'))
 
@@ -34,52 +33,46 @@ class AssessmentQuestion(Base):
     type = db.Column(db.String(128), nullable=False)
     score_total = db.Column(db.Integer, nullable=True)
     sequence = db.Column(db.Integer, nullable=False)
-    all_required = db.Column(db.Boolean, nullable=False, default=False)
 
-    answers = relationship('AssessmentAnswer')
-    responses = relationship('AssessmentResponse', back_populates='question')
-
+    options = relationship('Option')
+    responses = relationship('Response')
 
 
-class AssessmentEntry(Base):
+class Option(Base):
 
+    __tablename__ = 'option'
 
-    __abstract__ = True
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
 
-    letter = db.Column(db.Char, nullable=True)
-    correct = db.Column(db.Boolean, nullable=True)
-    text = db.Column(db.Text, nullable=True)
-    file = db.Column(db.String(192), nullable=True)
-
-    question_id = db.Column(db.Integer, db.ForeignKey('assessment_question.id'))
-
-
-
-class AssessmentAnswer(AssessmentEntry):
-
-
-    __tablename__ = 'assessment_answer'
-
-    strict = db.Column(db.Boolean, nullable=True)
+    manual = db.Column(db.Boolean, nullable=True)
+    score = db.Column(db.Integer, nullable=True)
     sequence = db.Column(db.Integer, nullable=False)
 
+    correct = db.Column(db.Boolean, nullable=True)
+    file = db.Column(db.String(192), nullable=True)
+    text_content = db.Column(db.Text, nullable=True)
+
+    responses = relationship('Response', secondary='response_option')
 
     def lookup(question_id):
-        return AssessmentAnswer.query.filter(AssessmentAnswer.question_id == question_id)
+        return Option.query.filter(Option.question_id == question_id)
 
 
-class AssessmentResponse(AssessmentEntry):
+class Response(Base):
 
-
-    __tablename__ = 'assessment_response'
+    __tablename__ = 'response'
 
     score = db.Column(db.Integer, nullable=True)
     feedback = db.Column(db.Text, nullable=True)
 
+    correct = db.Column(db.Boolean, nullable=True)
+    file = db.Column(db.String(192), nullable=True)
+    text_content = db.Column(db.Text, nullable=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
 
-    question = relationship('AssessmentQuestion', back_populates='responses')
-
+    options = relationship('Option', secondary='response_option')
 
     def grade(self, score, feedback=None):
         if not self.question.strict:
@@ -87,16 +80,13 @@ class AssessmentResponse(AssessmentEntry):
             self.score = score
             self.save()
 
-
     def auto_grade(self):
         if self.question.strict:
             correct = False
             answers = AssessmentAnswer.lookup(self.question_id)
 
             if self.type == 'multiple_choice':
-
                 for answer in answers:
-
                     if self.question.all_required:
                         if self.letter == answer.letter and not answer.correct:
                             break
@@ -106,12 +96,18 @@ class AssessmentResponse(AssessmentEntry):
                             break
 
             elif self.type == 'short_answer':
-
                 for answer in answers:
-
                     if self.text == answer.text and answer.correct:
                         correct = True
                         break
 
             self.correct = correct
             self.save()
+
+
+class ResponseOption(Base):
+
+    __tablename__ = 'response_option'
+
+    response_id = db.Column(db.Integer, db.ForeignKey('response.id'))
+    option_id = db.Column(db.Integer, db.ForeignKey('option.id'))

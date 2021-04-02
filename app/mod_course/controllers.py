@@ -1,7 +1,5 @@
 from flask import Blueprint, request, jsonify
 
-from app.controllers import assign
-from app.mod_credential.models import Credential, Prerequisite
-
+from app.mod_course.models import Course, UserCourse, CourseRequest
 
 mod_course = Blueprint('course', __name__, url_prefix='/course')

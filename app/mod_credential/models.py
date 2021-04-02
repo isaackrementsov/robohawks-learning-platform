@@ -1,17 +1,7 @@
 from app import db
 from sqlalchemy.orm import relationship
 from app.models import Base
-
-
-
-class UserCredential(Base):
-
-
-    __tablename__ = 'user_credential'
-
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    credential_id = db.Column(db.Integer, db.ForeignKey('credential.id'))
-
+from app.mod_course.models_abstract import CourseModule
 
 
 class Credential(Base):
@@ -25,15 +15,30 @@ class Credential(Base):
     micro = db.Column(db.Boolean, nullable=False)
     sequence = db.Column(db.Integer, nullable=False)
 
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-
-    recipients = relationship('User', secondary='user_credential')
+    #credentials = relationship('CourseCredential')
+    users = relationship('User', secondary='user_credential')
     required_for = relationship('Course', secondary='prerequisite')
 
     @staticmethod
     def list(query):
         return User.query.filter(db.or_(Post.name.like('%' + query + '%'), Post.description.like('%' + query + '%'))).all()
 
+
+class UserCredential(Base):
+
+
+    __tablename__ = 'user_credential'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    credential_id = db.Column(db.Integer, db.ForeignKey('credential.id'))
+
+
+class CourseCredential(CourseModule, Base):
+
+    __tablename__ = 'course_credential'
+
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    credential_id = db.Column(db.Integer, db.ForeignKey('credential.id'))
 
 
 class Prerequisite(Base):

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from app.controllers import assign
-from app.mod_page.models import Page, PageResource
+from app.mod_page.models import Page
 
 
 mod_page = Blueprint('page', __name__, url_prefix='/page')
@@ -94,16 +94,8 @@ def post_resource():
     res = {}
     status = 200
 
-    resource = PageResource(
-        page_id=form['page_id'],
-        link=form['link'],
-        file=form['file'],
-        sequence=form['sequence']
-    )
-
     try:
-        resource.save()
-        res = {'data': resource}
+        res = {}
     except Exception:
         status = 500
         res = {'error': 'There was an error saving the resource'}

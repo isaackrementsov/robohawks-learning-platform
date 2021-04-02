@@ -1,7 +1,6 @@
 from app import db
 from sqlalchemy.orm import relationship
 
-
 class Base(db.Model):
 
 
@@ -11,9 +10,9 @@ class Base(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     last_modified = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-
-    def lookup_id(self, id):
-        return self.__class__.query.get(id)
+    @staticmethod
+    def lookup_id(entity_class, id):
+        return entity_class.query.get(id)
 
 
     def save(self):
@@ -24,3 +23,6 @@ class Base(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

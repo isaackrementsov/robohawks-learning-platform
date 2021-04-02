@@ -1,33 +1,18 @@
 from app import db
 from sqlalchemy.orm import relationship
 from app.models import Base
+from app.mod_course.models_abstract import CourseModule
 
 
-
-class Page(CourseModule):
-
+class Page(CourseModule, Base):
 
     __tablename__ = 'page'
 
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-    unit_id = db.Column(db.Integer, ForeignKey('unit.id'))
 
-    resources = relationship('PageResource')
-    course = relationship('Course', back_populates='pages')
+    link = db.Column(db.String(192), nullable=False)
+    name = db.Column(db.String(128), nullable=False)
 
     # TODO: change this to self.resources or move to PageResource class?
     def next_sequence(self):
-        return PageResource.query(db.func.max(PageResource.sequence)).filter_by(PageResource.page_id=self.id)
-
-
-
-class PageResource(Base):
-
-
-    __tablename__ = 'page_resource'
-
-    link = db.Column(db.String(256), nullable=True)
-    file = db.Column(db.String(192), nullable=True)
-    sequence = db.Column(db.Integer, nullable=False)
-
-    page_id = db.Column(db.Integer, db.ForeignKey('page.id'))
+        return PageResource.query(db.func.max(PageResource.sequence)).filter_by(PageResource.page_id==self.id)
