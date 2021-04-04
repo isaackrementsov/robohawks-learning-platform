@@ -6,29 +6,30 @@ from app.mod_user.models import User
 
 mod_user = Blueprint('user', __name__, url_prefix='/user')
 
-def gen_session(user, sess):
+def gen_session(user, sess={}):
     sess['user_id'] = user.id
-    sess['username'] = user.username
-    sess['password'] = user.password
-    sess['avatar'] = user.avatar
     sess['admin'] = user.admin
 
     return sess, {
         'auth_success': True,
         'user_id': user.id,
         'instructor': user.instructor,
-        'admin': user.admin
+        'admin': user.admin,
+        'avatar': user.avatar
     }
 
 
 @mod_user.route('/auth', methods=['POST'])
 def auth():
     form = request.json
+    if form is None:
+        form = {}
+
     res = {}
 
     try:
-        identifier = form['identifier']
-        password = form['password']
+        identifier = form.get('identifier')
+        password = form.get('password')
         user = User.lookup(identifier)
 
         if user and user.password == password:
@@ -37,21 +38,22 @@ def auth():
         else:
             res = {'error': 'Incorrect credentials'}
     except Exception as e:
-        print(e)
-        res = {'error': 'There was an error logging you in'}
+        res = {'error': 'There was an error logging you in' + str(e)}
 
-    return jsonify(res), 200
+    out = jsonify(res)
+
+    return out, 200
 
 @mod_user.route('/deauth', methods=['POST'])
 @session_required
 def deauth():
     session.clear()
-    return jsonify({}), 200
+    return jsonify({'deauth_success': True}), 200
 
 
 @mod_user.route('/', methods=['GET'])
 @session_required
-def get():
+def get_user():
     try:
         id = int(request.args.get('id'))
         user = User.lookup_id(id)
@@ -60,32 +62,30 @@ def get():
         if user:
             user = user.as_dict()
 
-            if session['user_id'] != user['id']:
+            if session.get('user_id') != id:
                 del user['email']
                 del user['password']
 
             res = {'data': user}
 
     except Exception as e:
-        print(e)
         res = {'error': 'There was an error finding this user'}
 
     return jsonify(res), 200
 
 @mod_user.route('/', methods=['POST'])
-@session_required
 def post():
     form = request.json
     res = {}
 
     try:
         user = User(
-            email=form['email'],
-            username=form['username'],
-            first_name=form['first_name'],
-            last_name=form['last_name'],
-            password=form['password'],
-            instructor=form['instructor'],
+            email=form.get('email'),
+            username=form.get('username'),
+            first_name=form.get('first_name'),
+            last_name=form.get('last_name'),
+            password=form.get('password'),
+            instructor=form.get('instructor'),
             admin=False
         )
         user.save()
@@ -98,15 +98,7 @@ def post():
         except Exception:
             res = {'error': 'There was an error creating your account'}
 
-    out = jsonify(res)
-
-    '''
-    if res['auth_success']:
-
-        out.set_cookie('sid', session.sid)
-    '''
-
-    return out, 200
+    return jsonify(res), 200
 
 @mod_user.route('/', methods=['PATCH'])
 @session_required
@@ -114,22 +106,19 @@ def patch():
     user = User.lookup_id(request.args.get('id'))
     form = request.json
     res = {}
-    status = 200
 
     if user:
         user = assign(form, user)
-
+        print(user.username)
         try:
-            user.save()
+            #setattr(user, 'username', 'penis12')
+            user.update()
+            print(user.username)
             res = {'data': user.as_dict()}
-            print(res)
         except Exception:
-            status = 500
-            res = {'error': 'There was an error validating your account'}
-        else:
-            status = 404
+            res = {'error': 'There was an error updating your account'}
 
-        return jsonify(res), status
+    return jsonify(res), 200
 
 @mod_user.route('/', methods=['DELETE'])
 @session_required

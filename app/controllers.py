@@ -15,16 +15,21 @@ def get_field(orig):
 
 def assign(source, target):
     for key in source:
-        target.__dict__[key] = source[key]
+        try:
+            t = type(getattr(target, key))
+            if type(source[key]) == t:
+                setattr(target, key, source[key])
+        except Exception:
+            pass
 
     return target
 
 def session_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        print(session)
         if session.get('user_id') is None:
             return jsonify({'error': 'You are unauthorized to access this resource. Please log in'}), 200
+
         return f(*args, **kwargs)
 
     return decorated_function

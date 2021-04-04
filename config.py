@@ -23,4 +23,5 @@ CSRF_ENABLED = True
 CSRF_SESS_KEY = LOCAL_CONFIG['csrf_sess_key']
 
 SECRET_KEY = LOCAL_CONFIG['secret_key']
-SESSION_TYPE = 'memcached'
+SESSION_USE_SIGNER = True
+SESSION_TYPE = 'redis'

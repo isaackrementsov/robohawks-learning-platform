@@ -17,12 +17,15 @@ class Base(db.Model):
 
     def save(self):
         db.session.add(self)
+        self.update()
+
+    def update(self):
         db.session.commit()
 
 
     def delete(self):
         db.session.delete(self)
-        db.session.commit()
+        self.update()
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
