@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, make_response, session
+from werkzeug.utils import secure_filename
+import os
 
 from app import app
-from app.controllers import get_field, assign, session_required
+from app.controllers import get_field, assign, session_required, mime
 from app.mod_user.models import User
 
 mod_user = Blueprint('user', __name__, url_prefix='/user')
@@ -17,7 +19,6 @@ def gen_session(user, sess={}):
         'admin': user.admin,
         'avatar': user.avatar
     }
-
 
 @mod_user.route('/auth', methods=['POST'])
 def auth():
@@ -53,7 +54,7 @@ def deauth():
 
 @mod_user.route('/', methods=['GET'])
 @session_required
-def get_user():
+def get():
     try:
         id = int(request.args.get('id'))
         user = User.lookup_id(id)
@@ -108,26 +109,70 @@ def patch():
     res = {}
 
     if user:
+        del form['avatar']
         user = assign(form, user)
-        print(user.username)
+
         try:
-            #setattr(user, 'username', 'penis12')
             user.update()
-            print(user.username)
             res = {'data': user.as_dict()}
         except Exception:
             res = {'error': 'There was an error updating your account'}
 
     return jsonify(res), 200
 
+@mod_user.route('/files', methods=['PATCH'])
+@session_required
+def patch_files():
+    res = {}
+
+    try:
+        id = request.args.get('id')
+        current_id = str(session['user_id'])
+
+        file = request.files['files[0]']
+        file_type = mime(file).split('/')[0]
+
+        if file_type == 'image' and current_id == id:
+            user = User.lookup_id(id)
+
+            filename = secure_filename(file.filename)
+            parts = filename.split('.')
+            filename = '.'.join(parts[:-1]) + str(current_id) + '.' + parts[-1]
+
+            destination = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars/' + filename)
+            file.save(destination)
+
+            old_avatar = user.avatar
+            user.avatar = filename
+            user.update()
+
+            try:
+                if old_avatar != 'default.png':
+                    target = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars/' + old_avatar)
+                    os.remove(target)
+            except Exception:
+                pass
+
+            res = {'upload_success': True}
+        elif current_id == id:
+            res = {'upload_success': False, 'error': 'Invalid file type'}
+        else:
+            res = {'upload_success': False, 'error': "You do not have permission to change this user's avatar"}
+
+    except Exception:
+        res = {'upload_success': False, 'error': 'There was an error uploading your file'}
+
+    return res, 200
+
 @mod_user.route('/', methods=['DELETE'])
 @session_required
 def delete():
-    user = User.lookup_id(request.args.get('id'))
+    id = request.args.get('id')
+    user = User.lookup_id(id)
     res = {}
     status = 200
 
-    if user:
+    if user and id == str(session['user_id']):
         try:
             user.delete()
             res = {'data': user}

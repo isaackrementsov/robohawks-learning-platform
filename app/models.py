@@ -14,7 +14,6 @@ class Base(db.Model):
     def lookup_id(entity_class, id):
         return entity_class.query.get(id)
 
-
     def save(self):
         db.session.add(self)
         self.update()
@@ -28,4 +27,18 @@ class Base(db.Model):
         self.update()
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        obj = {}
+
+        for c in self.__table__.columns:
+            obj[c.name] = getattr(self, c.name)
+
+        return obj
+
+    @staticmethod
+    def list(criteria):
+        query = []
+
+        for key in criteria:
+            query.append(criteria[key] == getattr(User, key))
+
+        return User.query.filter(db.and_(*query)).all()

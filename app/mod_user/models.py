@@ -37,12 +37,3 @@ class User(Base):
     @staticmethod
     def lookup_id(id):
         return Base.lookup_id(User, id)
-
-    @staticmethod
-    def list(criteria):
-        query = []
-
-        for key in criteria:
-            query.append(criteria[key] == User.__dict__[key])
-
-        return User.query.filter(db.and_(*query)).all()

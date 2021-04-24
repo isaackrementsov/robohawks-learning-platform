@@ -15,6 +15,7 @@ class Course(Base):
 
     name = db.Column(db.String(128), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=False)
+    open = db.Column(db.Boolean, nullable=False, default=False)
 
     users = relationship('User', secondary='user_course')
     requests = relationship('CourseRequest')

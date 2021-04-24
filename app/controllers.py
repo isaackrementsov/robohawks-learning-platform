@@ -24,6 +24,14 @@ def assign(source, target):
 
     return target
 
+def mime(file):
+    matches = list(filter(lambda h: h[0] == 'Content-Type', file.headers))
+    
+    if len(matches) > 0:
+        return matches[0][1]
+    else:
+        return '*'
+
 def session_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

@@ -6,7 +6,6 @@ from app.mod_course.models_abstract import CourseModule
 
 class Credential(Base):
 
-
     __tablename__ = 'credential'
 
     name = db.Column(db.String(128), nullable=False)
@@ -20,8 +19,8 @@ class Credential(Base):
     required_for = relationship('Course', secondary='prerequisite')
 
     @staticmethod
-    def list(query):
-        return User.query.filter(db.or_(Post.name.like('%' + query + '%'), Post.description.like('%' + query + '%'))).all()
+    def list_user(user_id):
+        Credential.query.filter(Credential.users.any(id=user_id)).all()
 
 
 class UserCredential(Base):

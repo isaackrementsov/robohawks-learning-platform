@@ -25,3 +25,6 @@ CSRF_SESS_KEY = LOCAL_CONFIG['csrf_sess_key']
 SECRET_KEY = LOCAL_CONFIG['secret_key']
 SESSION_USE_SIGNER = True
 SESSION_TYPE = 'redis'
+
+print(BASE_DIR)
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'app/static/img/')

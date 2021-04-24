@@ -89,11 +89,15 @@ def delete():
     return jsonify(res), status
 
 
+@mod_credential.route('/all', methods=['GET'])
+def get_all():
+    res = {}
 
-@mod_credential.route('/search', methods=['GET'])
-def get_search():
-    credentials = Credential.list(request.args.get('keyword'))
-    res = {'data': credentials}
-    status = 200
+    try:
+        user_id = request.args.get('user_id')
+        credentials = Credential.list_user(user_id)
+        res = {'data': credentials}
+    except Exception:
+        res = {'error': 'There was an error getting credentials'}
 
-    return jsonify(res), status
+    return jsonify(res), 200
