@@ -1,0 +1,356 @@
+body, html {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
+}
+
+#root, #root > div, .App {
+    height: 100%;
+}
+
+a {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+a:hover {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.App-flex {
+    display: flex;
+}
+
+.App >* {
+    padding-right: 10%;
+    padding-left: 10%;
+}
+
+.App-flex >* {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+form {
+     background-color: white;
+     padding: 0;
+     color: black;
+     border-radius: 3px;
+     box-sizing: border-box;
+}
+
+form input[type='submit'] {
+    text-align: left;
+    padding: 8px 18px;
+}
+
+.jumbotron form {
+    padding: 20px 40px;
+    margin: auto;
+    text-align: center;
+    width: 500px;
+}
+
+form h1 {
+    font-size: 25px;
+    margin-top: 20px;
+}
+
+form > *, form input, form textarea {
+    display: block;
+}
+
+.jumbotron form > *, .jumbotron form input {
+    width: 100%;
+}
+
+form > * {
+    margin: 25px 0;
+}
+
+form hr {
+    margin: 10px;
+}
+
+input[type='text'], input[type='password'], input[type='email'], select {
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+    padding: 7px 10px;
+    background-color: transparent;
+    min-width: 30%;
+}
+
+form .flex-container-between .label {
+    min-width: 48%;
+}
+
+form .flex-container-between .label input {
+    width: 100%;
+}
+
+form .flex-container-between {
+    max-width: 38%;
+}
+
+.jumbotron form .flex-container-between {
+    max-width: 100%;
+}
+
+.jumbotron form .flex-container-between .label {
+    width: 48%;
+}
+
+.jumbotron form input[type='submit'] {
+    text-align: center;
+}
+
+.label {
+    color: #575757;
+    text-align: left;
+}
+
+.label:focus-within {
+    color: #F50057;
+    transition: 0.5s ease-in-out;
+}
+
+.label > * {
+    margin-top: 10px;
+}
+
+input[type='submit'], button {
+    background-color: #F50057;
+    border: 1px solid #F50057;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 7px 10px;
+    color: white;
+}
+
+.flex-container-center, .flex-container-between, .flex-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex-container-center {
+    justify-content: center;
+}
+
+.flex-container-between {
+    justify-content: space-between;
+}
+
+.flex-container-between .label {
+    margin: 0;
+}
+
+input:focus, button:focus, select:focus {
+    outline: none;
+    transition: 0.5s ease;
+}
+
+input[type='submit']:hover {
+    box-shadow: 0 0px 8px 0 rgb(0 0 0 / 20%);
+    transition: 0.5s ease;
+}
+
+.label input:focus, .label select:focus {
+    border-color: #F50057;
+    color: #F50057;
+    transition: 0.5s ease;
+}
+
+.file-dropzone-label {
+    flex-grow: 0.8;
+}
+
+.file-dropzone {
+    display: block;
+    background-color: whitesmoke;
+    padding: 9px 12px;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    text-align: left;
+    color: grey;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+.file-dropzone hr {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 4px;
+}
+
+.file-dropzone span {
+    color: #999999;
+    font-style: italic;
+}
+
+.file-dropzone:hover, .file-dropzone:focus {
+    border-color: #FF4081;
+    color: #FF4081;
+    transition: 0.2s ease-in-out;
+}
+
+.file-dropzone.disabled {
+    border-style: hidden;
+    background-color: transparent;
+    padding: 0;
+}
+
+input[type='password'] {
+    letter-spacing: 0.45px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label input[type='checkbox'] {
+    display: inline;
+    width: auto;
+    margin-right: 10px;
+    background-color: #FF4081;
+}
+
+.error-label {
+    color: #EF5350;
+}
+
+.content {
+    padding: 30px 50px;
+    flex-grow: 1;
+}
+
+input:disabled {
+    border-style: hidden;
+    padding: 0;
+    color: grey;
+}
+
+.edit-button {
+    background-color: transparent;
+    color: grey;
+    border-style: hidden;
+    padding: 0;
+}
+
+.edit-button svg {
+    height: 1.2em;
+    width: 1.2em;
+}
+
+.edit-button:hover {
+    color: darkslategrey;
+    transition: 0.5s ease-in-out;
+}
+
+.file-preview {
+    padding: 0;
+    margin: 0;
+}
+
+.file-preview > * {
+    vertical-align: middle;
+}
+
+.file-preview > div {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+}
+
+.file-preview > div {
+    margin-right: 10px;
+}
+
+.av-circle {
+    border-radius: 100%;
+}
+
+nav .av-circle, .file-preview > div {
+    background-size: cover !important;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.clear {
+    background-color: transparent;
+    border-style: hidden;
+}
+
+textarea {
+    background-color: transparent;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: 300;
+}
+
+textarea:focus {
+    border-style: inherit !important;
+    outline: none;
+}
+
+button.non-cta {
+    border-style: hidden;
+    background-color: rgb(245,245,245);
+    color: rgb(100,100,100);
+    border-radius: 0;
+    margin: 10px 0;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-weight: normal;
+}
+
+.label.inline {
+    padding: 7px 10px;
+    padding-left: 0;
+    display: inline-block;
+    padding-top: 0;
+    margin: 0;
+    border-radius: 5px;
+    background-color: whitesmoke;
+    padding: 10px;
+}
+
+.label.inline > * {
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+}
+
+.label.inline svg {
+    padding-right: 4px;
+    margin-right: 3px;
+    border-right: 1px solid lightgrey;
+}
+
+select {
+    min-width: 0;
+}
+
+.label.inline select {
+    min-width: 0;
+    border-style: hidden;
+}
+
+.vertical-center {
+    align-items: center;
+}
+
+.constrained-section .label {
+    width: 40%;
+}
+
+.constrained-section input {
+    width: 100%;
+}
+
+.pointer {
+    cursor: pointer;
+}

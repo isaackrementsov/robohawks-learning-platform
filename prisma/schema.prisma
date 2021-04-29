@@ -1,0 +1,134 @@
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+    id Int @default(autoincrement()) @id
+    email String @unique
+    username String @unique
+    first_name String
+    last_name String
+    password String
+    avatar String @default("avatar.png")
+    instructor Boolean @default(false)
+
+    enrollments Enrollment[]
+    credentials Credential[]
+    responses Response[]
+}
+
+model Page {
+    id Int @default(autoincrement()) @id
+    link String
+
+    course Course @relation(fields: [courseId], references: [id])
+    courseId Int
+}
+
+model Credential {
+    id Int @default(autoincrement()) @id
+    name String
+    icon String
+    description String?
+    micro Boolean
+    sequence Int
+
+    users User[]
+    required_for Prerequisite[]
+    received_in Course[]
+}
+
+// Prerequisites are explicitly related to prevent duplicate Course–Credential implicit relation
+model Prerequisite {
+    id Int @default(autoincrement()) @id
+
+    course Course @relation(fields: [courseId], references: [id])
+    credential Credential @relation(fields: [credentialId], references: [id])
+    courseId Int
+    credentialId Int
+}
+
+model Course {
+    id Int @default(autoincrement()) @id
+    name String
+    description String?
+    published Boolean
+
+    enrolled Enrollment[]
+    prerequisites Prerequisite[]
+    credentials Credential[]
+    assessments Assessment[]
+    pages Page[]
+}
+
+model Enrollment {
+    id Int @default(autoincrement()) @id
+    progress Int @default(0)
+
+    user User @relation(fields: [userId], references: [id])
+    course Course @relation(fields: [courseId], references: [id])
+    userId Int
+    courseId Int
+}
+
+model Assessment {
+    id Int @default(autoincrement()) @id
+    name String
+    sequence Int
+    description String?
+
+    course Course @relation(fields: [courseId], references: [id])
+    courseId Int
+
+    questions Question[]
+}
+
+model Question {
+    id Int @default(autoincrement()) @id
+    text_content String?
+    file String?
+    type String
+    score_total Int
+    sequence Int
+
+    assessment Assessment @relation(fields: [assessmentId], references: [id])
+    assessmentId Int
+
+    options Option[]
+    responses Response[]
+}
+
+model Option {
+    id Int @default(autoincrement()) @id
+    manual Boolean @default(false)
+    correct Boolean
+    text_content String?
+    file String?
+    sequence Int
+
+    question Question @relation(fields: [questionId], references: [id])
+    questionId Int
+
+    responses Response[]
+}
+
+model Response {
+    id Int @default(autoincrement()) @id
+    correct Boolean?
+    feedback String?
+    file String?
+    text_content String?
+    score Int?
+
+    author User @relation(fields: [authorId], references: [id])
+    question Question @relation(fields: [questionId], references: [id])
+    authorId Int
+    questionId Int
+
+    options Option[]
+}

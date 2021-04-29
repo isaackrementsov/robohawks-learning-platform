@@ -1,0 +1,57 @@
+.gradient {
+    position: relative;
+    padding-top: 70px !important;
+    background: linear-gradient(115deg, #FF5252, #F50057);
+    color: white;
+    top: -70px;
+    height: 100%;
+}
+
+.gradient-app .row.center {
+    align-items: center;
+}
+
+.gradient-app .jumbotron h1 {
+    font-weight: bold;
+}
+
+.gradient-app .jumbotron p {
+    color: whitesmoke;
+    font-weight: 300;
+    font-size: 20px;
+    margin: 20px 0;
+    line-height: 33px;
+}
+
+.gradient-app .jumbotron img {
+    max-height: 450px;
+    max-width: 40vw;
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+
+.gradient-app a.nav-link {
+    color: whitesmoke !important;
+}
+
+.gradient-app a.nav-link:hover {
+    color: white !important;
+}
+
+.gradient-app a.nav-link.cta {
+    border: 1px solid white;
+    color: white !important;
+    background-color: transparent !important;
+}
+
+.gradient-app a.nav-link.cta:hover {
+    background-color: white !important;
+    color: #FF5252 !important;
+}
+
+.gradient-app #title {
+    color: white !important;
+}
+
+.gradient-app #landing {
+    box-shadow: none;
+}
