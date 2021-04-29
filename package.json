@@ -1,0 +1,39 @@
+{
+  "name": "learncvu",
+  "version": "1.0.0",
+  "description": "RoboHawks Learning Platform",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isaackrementsov/robohawks-learning-platform.git"
+  },
+  "author": "Isaac Krementsov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isaackrementsov/robohawks-learning-platform/issues"
+  },
+  "homepage": "https://github.com/isaackrementsov/robohawks-learning-platform#readme",
+  "dependencies": {
+    "@prisma/client": "^2.21.2",
+    "@types/next": "^9.0.0",
+    "@types/react": "^17.0.4",
+    "body-parser": "^1.19.0",
+    "connect-redis": "^5.1.0",
+    "express-session": "^1.17.1",
+    "next": "^10.1.3",
+    "next-session": "^3.4.0",
+    "prisma": "^2.21.2",
+    "react-icons": "^4.2.0",
+    "redis": "^3.1.2",
+    "redux": "^4.1.0",
+    "redux-react-session": "^2.6.1",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/connect-redis": "^0.0.16"
+  }
+}
