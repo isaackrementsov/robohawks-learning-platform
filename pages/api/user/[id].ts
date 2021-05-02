@@ -1,12 +1,15 @@
-import RESTController, { Authorization } from '../../../lib/controller';
+import { Authorization } from '../../../lib/common-types';
+import RESTController from '../../../lib/controller';
 import client from '../../../lib/db';
 
 export default RESTController(Authorization.USER, {
-    get: (_req, res) => {
-        return {};
-    },
-    post: (_req, res) => {
-        return {};
+    get: async (req, res) => {
+        let { id } = req.query;
+        id = parseInt(id);
+
+        const user = await client.user.findUnique({where: {id: id}});
+
+        return {user};
     },
     patch: (_req, res) => {
         return {};

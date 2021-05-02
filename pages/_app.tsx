@@ -1,7 +1,8 @@
 import { AppProps } from 'next/app';
-import '../public/css/App.css';
-import '../public/css/Nav.css';
-import '../public/css/Gradient.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/Gradient.css';
+import '../styles/App.css';
+import '../styles/Nav.css';
 
 export default function App({Component, pageProps}: AppProps){
     return <Component {...pageProps}/>

@@ -1,27 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Authorization } from './common-types';
 import globalMiddleware from './middleware';
 
-export enum Authorization {
-    NONE,
-    GUEST,
-    USER,
-    INSTRUCTOR
-}
 
 const baseResolvers = {
-    'GET': (_req, _res) => { return {}; }
+    get: (_req, _res) => { return {}; }
 }
 
 const authorized = (authorization, session) : Boolean => {
     switch(authorization){
         case Authorization.GUEST:
-            return !session.userId;
+            return !session.user_id;
 
         case Authorization.USER:
-            return !!session.userId;
+            return !!session.user_id;
 
         case Authorization.INSTRUCTOR:
-            return !!session.userId && session.instructor;
+            return !!session.user_id && session.instructor;
 
         default:
             return true;
@@ -32,10 +27,11 @@ export default function RESTController(authorization: Authorization = Authorizat
 
     const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         try {
-            for(let i = 0; i < globalMiddleware.length; i++) await globalMiddleware[i](req, res);
-            for(let i = 0; i < controllerMiddleware.length; i++) await controllerMiddleware[i](req, res);
+            const pass = () => {};
+            for(let i = 0; i < globalMiddleware.length; i++) await globalMiddleware[i](req, res, globalMiddleware[i + 1] || controllerMiddleware[i + 1] || pass);
+            for(let i = 0; i < controllerMiddleware.length; i++) await controllerMiddleware[i](req, res, controllerMiddleware[i + 1] || pass);
 
-            if(authorized(authorization, req['session'])){
+            if(authorized(authorization, req.session)){
                 const resolve = resolvers[req.method.toLowerCase()];
 
                 if(resolve){
@@ -48,6 +44,7 @@ export default function RESTController(authorization: Authorization = Authorizat
                 res.status(403).json({error: 'You are not authorized to access endpoint ' + req.url})
             }
         }catch(e){
+            console.log(e)
             res.status(500).json({error: 'Server error'});
         }
     }

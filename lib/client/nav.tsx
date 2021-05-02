@@ -1,20 +1,26 @@
 import { home } from './authorization';
-import { loggedIn, destroySession, useValue } from './session';
+import { destroySession, useSession, useValue } from './session';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { CgAdd } from 'react-icons/cg';
 
 export default function Nav(props){
-    const userHome = home();
+    const [user, setUser] = useState({});
+    const [logout, setLogout] = useState(false);
+    const userHome = home(user['user_id']);
     const router = useRouter();
 
-    const logout = async e => {
-        e.preventDefault();
 
-        await destroySession();
-        router.push('/login');
-    }
+    useEffect(useSession(session => {
+        setUser(session);
 
-    if(loggedIn()){
+        if(logout){
+            destroySession();
+            router.push('/login');
+        }
+    }), [logout]);
+
+    if(user['user_id']){
         return (
             <nav className="nav flex-column">
                 <a className="navbar-brand h1" href={userHome}>
@@ -23,7 +29,7 @@ export default function Nav(props){
                         <br/><p>LearnCVU</p>
                     </div>
                 </a>
-                { useValue('instructor') ?
+                { user['instructor'] ?
                     <>
                         <NavLink className="cta" href="/course/new"><CgAdd/><span>Create Course</span></NavLink>
                         <NavLink href="/course/all"><span>Find Courses</span></NavLink>
@@ -32,7 +38,7 @@ export default function Nav(props){
                     <NavLink className="cta" href="/course/all"><CgAdd/><span>Find Courses</span></NavLink>
                 }
                 <NavLink href={userHome}><span>Dashboard</span></NavLink>
-                <NavLink onClick={logout} style={{cursor: 'pointer'}}><span>Logout</span></NavLink>
+                <NavLink onClick={() => setLogout(true)} style={{cursor: 'pointer'}}><span>Logout</span></NavLink>
             </nav>
         )
     }else{
@@ -57,13 +63,17 @@ export default function Nav(props){
 }
 
 function NavLink(props){
-    let isActive = window.location.pathname === props.href;
+    const [active, setActive] = useState(false);
+
+    useEffect(function onFirstMount(){
+        setActive(window.location.pathname === props.href);
+    }, [setActive]);
 
     return (
         <li className="nav-item">
             <a
                 href={props.href}
-                className={(props.className || '') + ' nav-link' + (isActive ? ' active' : '')}
+                className={(props.className || '') + ' nav-link' + (active ? ' active' : '')}
                 onClick={props.onClick}
                 style={props.style}
             >
@@ -74,6 +84,9 @@ function NavLink(props){
 }
 
 export function PageHeader(props){
+    const [avatar, setAvatar] = useState('');
+    useEffect(useValue('avatar', data => setAvatar(data)), [setAvatar]);
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light horiz part-nav" style={props.style}>
             <div className="navbar-brand h1 mb-0">
@@ -84,7 +97,7 @@ export function PageHeader(props){
                     {props.customNav ||
                         <li className="nav-item">
                             <a className="nav-link avatar" href="/account">
-                                <div className="av-circle" style={{background: `url(/public/img/avatars/${useValue('avatar')})`}}/>
+                                <div className="av-circle" style={{background: `url(/public/img/avatars/${avatar})`}}/>
                             </a>
                         </li>
                     }
@@ -97,7 +110,7 @@ export function PageHeader(props){
 export function PageLayout(props){
     return (
         <div className="App App-flex">
-            <Nav history={props.history}/>
+            <Nav/>
             <div className="content">
                 <PageHeader title={props.title} style={props.style} customNav={props.customNav}/>
                 <div className="col">

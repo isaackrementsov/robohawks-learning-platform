@@ -1,31 +1,30 @@
-export function inputHandler(stateHook){
-    let state, setState = stateHook;
-
+export function inputHandler(setForm){
     return e => {
         let val = e.target.value;
         let name = e.target.name;
-        let updated = state['form'];
 
-        if(e.target.type === 'checkbox'){
-            updated[name] = !updated[name];
-        }else{
-            updated[name] = val;
-        }
+        setForm(prevForm => {
+            if(e.target.type === 'checkbox') val = !prevForm[name];
 
-        setState({'form': updated});
+            return {
+                ...prevForm,
+                [name]: val
+            }
+        });
     }
 }
 
-export function submitHandler(uri: string, method: string, stateHook) : Function {
-    let state, setState = stateHook;
-
+export function submitHandler(uri: string, method: string, form, handleRes) : Function {
     return async e => {
         e.preventDefault();
-        const form = state['form'];
 
-        const res = await fetch(uri, {method: method, body: form});
+        const res = await fetch(uri, {
+            method: method,
+            body: JSON.stringify(form),
+            headers: {'Content-Type': 'application/json'}
+        });
         const body = await res.json();
 
-        setState({'res': body});
+        handleRes(body);
     }
 }

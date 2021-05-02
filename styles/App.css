@@ -1,11 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Slab:wght@900&display=swap');
+
 body, html {
     position: relative;
     width: 100%;
     min-height: 100%;
     height: 100%;
+    font-family: 'Heebo', Arial, sans-serif;
 }
 
-#root, #root > div, .App {
+#__next, #__next > div, .App {
     height: 100%;
 }
 
@@ -85,7 +88,7 @@ form .flex-container-between .label {
     min-width: 48%;
 }
 
-form .flex-container-between .label input {
+form .flex-container-between .label input:not(input[type='checkbox']) {
     width: 100%;
 }
 

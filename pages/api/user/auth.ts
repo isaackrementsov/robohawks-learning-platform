@@ -1,4 +1,5 @@
-import RESTController, { Authorization } from '../../../lib/controller';
+import { Authorization } from '../../../lib/common-types';
+import RESTController from '../../../lib/controller';
 import { newSession } from '../../../lib/session';
 import client from '../../../lib/db';
 
@@ -7,25 +8,29 @@ export default RESTController(Authorization.NONE, {
         const identifier = req.body.identifier
         const password = req.body.password;
 
-        const user = await client.user.findUnique({
+        const users = await client.user.findMany({
             where: {
                 OR: [
-                    {email: identifier},
-                    {username: identifier}
+                    {'email': identifier},
+                    {'username': identifier}
                 ],
                 AND: [
-                    {password: password}
+                    {'password': password}
                 ]
             }
         });
+        const user = users[0];
 
-        Object.assign(req.session, newSession(user));
-        delete user.password;
-
-        return user;
+        if(user){
+            Object.assign(req.session, newSession(user));
+            delete user.password;
+            return {user};
+        }else{
+            return {'error': 'Account not found'}
+        }
     },
     delete: async (req, res) => {
         await req.session.destroy();
-        return {data: {success: true}};
+        return {'success': true};
     }
 });

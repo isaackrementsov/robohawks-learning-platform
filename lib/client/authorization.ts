@@ -1,17 +1,12 @@
-import { useSession, useValue } from './session';
-import { useRouter } from 'next/router';
-import { Authorization } from '../controller';
+import { Authorization } from '../common-types';
+import { useEffect } from 'react';
 
-export const home = (userId?: string) => {
-    const id = userId || useValue('user_id');
-    return '/user/' + id;
+export const home = (userId: string) => {
+    return '/user/' + userId;
 }
 
-export default function Authorize(authorization: Authorization) {
-    return () => {
-        const session = useSession();
-        const router = useRouter();
-
+export default function Authorize(authorization: Authorization, router) {
+    return session => {
         const userId = session['user_id'];
         const instructor = session['instructor'];
         const hasUserId = Boolean(userId);
@@ -37,6 +32,6 @@ export default function Authorize(authorization: Authorization) {
     }
 }
 
-export const authorizeGuest = Authorize(Authorization.GUEST);
-export const authorizeUser = Authorize(Authorization.USER);
-export const authorizeInstructor = Authorize(Authorization.INSTRUCTOR);
+export const authorizeGuest = router => Authorize(Authorization.GUEST, router);
+export const authorizeUser = router => Authorize(Authorization.USER, router);
+export const authorizeInstructor = router => Authorize(Authorization.INSTRUCTOR, router);

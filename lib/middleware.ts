@@ -1,6 +1,8 @@
 import { useSession } from './session';
+import bodyParser from 'body-parser';
 
 const globalMiddleware : Function[] = [
-    useSession
+    useSession,
+    bodyParser.json()
 ];
 export default globalMiddleware;

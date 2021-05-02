@@ -1,4 +1,3 @@
-/*
 import { applySession } from 'next-session';
 import redis from 'redis';
 import connectRedis from 'connect-redis';
@@ -19,5 +18,3 @@ export const newSession = (user) : Object => {return {
     'user_id': user.id,
     'instructor': user.instructor,
 }}
-
-*/
